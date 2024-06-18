@@ -14,7 +14,7 @@ import numpy as np
 import os
 
 # X_filenames represents the raw images
-X_filenames = sorted(glob("images/*.*"))
+X_filenames = sorted(glob("0-2mm/images/*.*"))
 
 # function to parse arguments given in command line
 def parse_args():
@@ -39,7 +39,7 @@ def read_image(filename):
 def main(args):
 
     # Y represents the masks
-    Y = sorted(glob("masks/*.*"))
+    Y = sorted(glob("0-2mm/masks/*.*"))
 
     # assertion check ensures that each image has a matching mask with the same filename
     # assert all(Path(x).name == Path(y).name for x, y in zip(X_filenames, Y))
