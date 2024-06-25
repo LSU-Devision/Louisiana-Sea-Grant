@@ -268,20 +268,21 @@ def main(args):
 
         return stats
 
+    # number of epochs
+    epochs = args.epochs
+    
     # main training loop
-    current_epoch = 0
-    for target_epoch in args.epochs:
-        epochs_to_train = target_epoch - current_epoch
+    for i in epochs:
 
         # naming the model
-        model_name = args.model_name + "_" + str(args.dataset_size) + '_epochs_' + str(target_epoch)
+        model_name = args.model_name + "_" + str(args.dataset_size) + '_epochs_' + str(i)
 
-        # instantiate the model with custom parameters or load from checkpoint
-        if os.path.exists(os.path.join(dataset_dir, model_name, 'weights_last.h5')):
-            print(f"Loading model from checkpoint: {model_name}")
-            model = StarDist2D(None, name=model_name, basedir=dataset_dir)
-        else:
-            model = StarDist2D(conf, name=model_name, basedir=dataset_dir)
+        # naming the model - this is used if there will multiple versions of the same training
+        # this is more advanced
+        # model_name = 'customStardist_' + str(dataset_size) + '_v' + str(version) + '_epochs_' + str(i)
+
+        # instantiate the model with custom parameters
+        model = StarDist2D(conf, name=model_name, basedir=dataset_dir)
 
         # calculates the average size of labeled objects in mask images
         median_size = calculate_extents(list(Y_train), np.median)
@@ -299,17 +300,11 @@ def main(args):
         if any(median_size > fov):
             print("WARNING: median object size larger than field of view of the neural network.")
 
-        # code to train the model based on the data given
-        for epoch in range(epochs_to_train):
-            print(f"Training epoch {current_epoch + epoch + 1}/{target_epoch}")
-            model.train(
-                X_train, Y_train, validation_data=(X_val, Y_val),
-                augmenter=augmenter,
-                epochs=1
-            )
+        # epochs based on where i is in the list of epochs
+        epochs = i
 
-            # Save the model after each epoch
-            model.keras_model.save_weights(os.path.join(dataset_dir, model_name, 'weights_last.h5'))
+        # code to train the model based on the data given
+        model.train(X_train, Y_train, validation_data=(X_val, Y_val), augmenter=augmenter, epochs=epochs)
 
         # optimizing thresholds for validation data
         model.optimize_thresholds(X_val, Y_val)
@@ -319,9 +314,6 @@ def main(args):
 
         # evaluation of testing data
         stats_test = evaluate_and_save(model, X_test, Y_test, 'test')
-
-        # Update current epoch
-        current_epoch = target_epoch
 
     print("Training is complete.")
 
