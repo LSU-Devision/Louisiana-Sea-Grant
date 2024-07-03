@@ -23,7 +23,7 @@ def parse_args():
     parser.add_argument("--dataset_size", type=int, default=int(len(X_filenames) - 1), 
         help="Sets the size of the dataset to be used. Cannot be equal to total_data as there would be no testing data and the program will not work. Default: one less than the total_data amount.")
     parser.add_argument("--rays", type=int, default=32, help="Sets the number of Rays. Default: 32.")
-    parser.add_argument("--train_split", type=float, default=0.85, help="Sets the percent to split training/validation data. Default: .85.")
+    parser.add_argument("--train_split", type=float, default=0.80, help="Sets the percent to split training/validation data. Default: .85.")
     parser.add_argument("--testing_size", type=int, default=1, help="Sets the number of testing images. Default: 1 to ensure the program works.")
     parser.add_argument("--epochs", type=int, nargs='+', default=[10], 
         help="Sets the number of epochs. Accepts a number or list of numbers. E.g. --epochs 10 50 100 300. Default: 10.")
