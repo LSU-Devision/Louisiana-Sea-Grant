@@ -53,4 +53,4 @@ Alex P. Mensen-Johnson, Angel Wilson, Austin Louque, Christian Ennis, Fernando H
 <img src="logos/lsulogo.png" alt="LSU Logo" width="250">
 
 
-[LSU](https://lsu.edu/)
+
