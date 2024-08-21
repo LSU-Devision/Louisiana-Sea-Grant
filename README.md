@@ -48,9 +48,9 @@ Alex P. Mensen-Johnson, Angel Wilson, Austin Louque, Christian Ennis, Fernando H
 **LSU Math Consultation Clinic:**  
 [LSU Math Consultation Clinic](https://www.math.lsu.edu/courses/capstone_course)
 
-<img src="/assets/logos/mcclogo.gif" alt="MCC Logo" width="100">
+<img src="logos/mcclogo.gif" alt="MCC Logo" width="100">
 
-<img src="/assets/logos/lsulogo.png" alt="LSU Logo" width="250">
+<img src="logos/lsulogo.png" alt="LSU Logo" width="250">
 
 
 [LSU](https://lsu.edu/)
