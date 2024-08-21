@@ -37,7 +37,7 @@ Alex P. Mensen-Johnson, Angel Wilson, Austin Louque, Christian Ennis, Fernando H
 **Director:** Elizabeth M. Robinson  
 **Postdoctoral Researcher:** Dr. Sarah Bodenstein
 
-[Louisiana Sea Grant Research Lab](https://www.laseagrant.org/)
+[Louisiana Sea Grant Research Lab](https://www.laseagrant.org/outreach/aquaculture/oyster-research-lab/)
 
 ## LSU Department of Mathematics
 
