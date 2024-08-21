@@ -1,4 +1,4 @@
-# Louisiana-Sea-Grant
+# Louisiana-Sea-Grant- Oyster Project
 
 # Project Overview
 
@@ -20,7 +20,9 @@ The training process yielded promising results, with significant reductions in b
   
 - **User Interface**: This GUI image showcases the oyster counting application, which selects the best model, trained over 500 epochs, to accurately predict the count of oyster seeds in an image. For the sample image, the predicted number of oysters is 69, as displayed in the interface.
 
-![Oyster Counting GUI](Images/GUI_prediction.png)
+ <img src="Images/GUI_prediction.png" alt="Oyster Counting GUI" width="500">
+
+
 
 ## Research Team
 
@@ -35,7 +37,7 @@ Alex P. Mensen-Johnson, Angel Wilson, Austin Louque, Christian Ennis, Fernando H
 **Director:** Elizabeth M. Robinson  
 **Postdoctoral Researcher:** Dr. Sarah Bodenstein
 
-[Louisiana Sea Grant Research Lab](https://www.laseagrant.org/)
+[Louisiana Sea Grant Research Lab](https://www.laseagrant.org/outreach/aquaculture/oyster-research-lab/)
 
 ## LSU Department of Mathematics
 
@@ -46,8 +48,9 @@ Alex P. Mensen-Johnson, Angel Wilson, Austin Louque, Christian Ennis, Fernando H
 **LSU Math Consultation Clinic:**  
 [LSU Math Consultation Clinic](https://www.math.lsu.edu/courses/capstone_course)
 
-<img src="images/mcclogo.gif" alt="MCC Logo" width="100">
+<img src="logos/mcclogo.gif" alt="MCC Logo" width="100">
 
-<img src="images/lsulogo.png" alt="LSU Logo" width="250">
+<img src="logos/lsulogo.png" alt="LSU Logo" width="250">
 
-[LSU](https://lsu.edu/)
+
+
