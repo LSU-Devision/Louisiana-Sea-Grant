@@ -20,7 +20,7 @@ The training process yielded promising results, with significant reductions in b
   
 - **User Interface**: This GUI image showcases the oyster counting application, which selects the best model, trained over 500 epochs, to accurately predict the count of oyster seeds in an image. For the sample image, the predicted number of oysters is 69, as displayed in the interface.
 
- <img src="C:\Users\lsuma\Documents\GitHub\Louisiana-Sea-Grant\2-4mm\results\GUI_prediction.png" alt="Oyster Counting GUI" width="500">
+ <img src="\2-4mm\results\GUI_prediction.png" alt="Oyster Counting GUI" width="500">
 
 
 
