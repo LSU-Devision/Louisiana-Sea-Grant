@@ -18,16 +18,58 @@ X_filenames = sorted(glob("0-2mm/images/*.*"))
 
 # function to parse arguments given in command line
 def parse_args():
-    parser = argparse.ArgumentParser(description="Here is the help section for the optional commands.")
-    parser.add_argument("--total_data", type=int, default=len(X_filenames), help="Sets the total amount of data. Default: total amount of images in the images folder.")
-    parser.add_argument("--dataset_size", type=int, default=int(len(X_filenames) - 1), 
-        help="Sets the size of the dataset to be used. Cannot be equal to total_data as there would be no testing data and the program will not work. Default: one less than the total_data amount.")
-    parser.add_argument("--rays", type=int, default=32, help="Sets the number of Rays. Default: 32.")
-    parser.add_argument("--train_split", type=float, default=0.80, help="Sets the percent to split training/validation data. Default: .80.")
-    parser.add_argument("--testing_size", type=int, default=int(.2 * len(X_filenames)), help="Sets the number of testing images. Default: 1 to ensure the program works.")
-    parser.add_argument("--epochs", type=int, nargs='+', default=[10], 
-        help="Sets the number of epochs. Accepts a number or list of numbers. E.g. --epochs 10 50 100 300. Default: 10.")
-    parser.add_argument("--model_name", type=str, default="customModel", help="Sets the name of the model. Accepts a string. Default: customModel")
+    """
+    Parses command-line arguments for configuring dataset parameters, model training, and evaluation settings.
+
+    Returns:
+        argparse.Namespace: Parsed command-line arguments.
+    """
+    parser = argparse.ArgumentParser(description="Help section for optional commands.")
+
+    parser.add_argument(
+        "--total_data", 
+        type=int, 
+        default=len(X_filenames), 
+        help="Total amount of data. Default: total number of images in the images folder."
+    )
+    parser.add_argument(
+        "--dataset_size", 
+        type=int, 
+        default=len(X_filenames) - 1, 
+        help="Size of the dataset to be used. Must be less than total_data to ensure testing data is available. Default: one less than total_data."
+    )
+    parser.add_argument(
+        "--rays", 
+        type=int, 
+        default=32, 
+        help="Number of rays to be used. Default: 32."
+    )
+    parser.add_argument(
+        "--train_split", 
+        type=float, 
+        default=0.80, 
+        help="Percentage split for training/validation data. Default: 0.80 (80%)."
+    )
+    parser.add_argument(
+        "--testing_size", 
+        type=int, 
+        default=1, 
+        help="Number of testing images. Must be at least 1 to ensure the program runs correctly. Default: 1."
+    )
+    parser.add_argument(
+        "--epochs", 
+        type=int, 
+        nargs='+', 
+        default=[10], 
+        help="Number of training epochs. Accepts a single value or a list (e.g., --epochs 10 50 100 300). Default: 10."
+    )
+    parser.add_argument(
+        "--model_name", 
+        type=str, 
+        default="customModel", 
+        help="Name of the model. Default: 'customModel'."
+    )
+
     return parser.parse_args()
 
 # function to read images using Pillow
@@ -37,70 +79,86 @@ def read_image(filename):
 
 # main function
 def main(args):
+    """
+    Main function to process image data, set up training configurations, and train a segmentation model.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments specifying dataset size, model parameters, 
+                                training configuration, and other options.
+
+    Steps:
+        1. Loads image and mask data from disk.
+        2. Normalizes and preprocesses images (e.g., normalization, hole filling).
+        3. Splits data into training, validation, and testing sets.
+        4. Configures the segmentation model with user-defined parameters.
+        5. Defines augmentation techniques for training.
+        6. Trains the model for specified epochs with data augmentation.
+        7. Evaluates model performance on validation and test sets.
+        8. Saves model evaluation metrics and visualization plots.
+
+    Outputs:
+        - Training, validation, and testing images saved for verification.
+        - Model training progress and evaluation metrics.
+        - CSV reports with model performance statistics.
+        - Trained models saved in the specified directory.
+    """
 
     # Y represents the masks
-    Y = sorted(glob("0-2mm/masks/*.*"))
+    Y_filenames = sorted(glob("0-2mm/masks/*.*"))
 
-    # assertion check ensures that each image has a matching mask with the same filename
-    # assert all(Path(x).name == Path(y).name for x, y in zip(X_filenames, Y))
+    # Read image files and store them in a list named X
+    X = [read_image(x) for x in tqdm(X_filenames, desc="Loading images")]
 
-    # read image files and store them in a list named X
-    X = list(map(read_image, X_filenames))
+    # Read mask files and store them in a list named Y
+    Y = [read_image(y) for y in tqdm(Y_filenames, desc="Loading masks")]
 
-    # read image files and store them in a list named Y
-    Y = list(map(read_image, Y))
     # ensures that any random operations are reproducible across all runs
     np.random.seed(42)
 
     # print statements
-    print(f"total amount of data: {args.total_data}")
-    print(f"dataset_size: {args.dataset_size}")
-    print(f"testing size: {args.testing_size}")
-    print(f"rays: {args.rays}")
-    print(f"training/validation split: {args.train_split}")
-    print(f"epochs: {args.epochs}")
-    print("total number of images:", len(X))
-    print("total number of masks:", len(Y))
+    print(f"Total amount of data: {args.total_data}")
+    print(f"Dataset_size: {args.dataset_size}")
+    print(f"Testing size: {args.testing_size}")
+    print(f"Rays: {args.rays}")
+    print(f"Training/validation split: {args.train_split}")
+    print(f"Epochs: {args.epochs}")
+    print("Total number of images:", len(X))
+    print("Total number of masks:", len(Y))
 
-    # function for grayscale
-    def rgb_to_gray(img):
-        return np.dot(img[..., :3], [0.2989, 0.5870, 0.1140])
-
-    # function for grayscale
-    def ensure_grayscale(X):
-        return [rgb_to_gray(x) if x.ndim == 3 else x for x in X]
-
-    # ensures that the input images are grayscale
-    X = ensure_grayscale(X)
-
-    # n_channels are set to 1 indicating that the input images are grayscale
-    # this is a single channel as opposed to RGB images which have 3 channels
-    n_channel = 1
+    # n_channels are set to 3 indicating that the input images are RGB
+    n_channel = 3
 
     # normalization of images
     axis_norm = (0, 1)
-    X = [normalize(x, 1, 99.8, axis=axis_norm) for x in X]
+    X = [normalize(x, 1, 99.8, axis=axis_norm) for x in tqdm(X, desc="Normalizing images")]
 
-    # applied to each mask in Y, ensuring that any labeled regions are solid without internal holes
-    Y = [y.astype(np.int32) for y in Y]
-    Y = [fill_label_holes(y) for y in Y]
+    # Convert masks to integer labels
+    Y = [y.astype(np.int32) for y in tqdm(Y, desc="Converting masks to int32")]
 
-    # function to pad images to ensure that the images meet the minimum requirement of 256x256 pixels
-    def pad_image(img, target_shape=(256, 256)):
-        pads = [(0, max(0, target_shape[i]-img.shape[i])) if i < 2 else (0, 0) for i in range(img.ndim)]
-        return np.pad(img, pads, mode='constant')
+    # Fill label holes in masks
+    Y = [fill_label_holes(y) for y in tqdm(Y, desc="Filling label holes in masks")]
+
+
+    ######################################################################################################
+    # Uncomment this section if your images are less than the minimum requirement of 256x256 pixels
+    # function to pad images the minimum
+    # def pad_image(img, target_shape=(256, 256)):
+    #     pads = [(0, max(0, target_shape[i]-img.shape[i])) if i < 2 else (0, 0) for i in range(img.ndim)]
+    #     return np.pad(img, pads, mode='constant')
 
     # padding images
-    X = [pad_image(x) for x in X]
-    Y = [pad_image(y) for y in Y]
-    Y = [y.astype(np.int32) for y in Y]
-    # number of rays to use for the non-maximum suppression in the StarDist model
-    # 32 is a great starting point
+    # X = [pad_image(x) for x in X]
+    # Y = [pad_image(y) for y in Y]
+    ######################################################################################################
+
+
+    # number of rays to use for the non-maximum suppression in the StarDist training
+    # 32 is default
     n_rays = args.rays
 
     # parameter in StarDist that specifies the step size for the patches extracted from
-    # the training images
-    grid = (2, 2)
+    # the training images.
+    grid = (4, 4)
 
     # configuration object with model parameters to be used in initilization/training
     conf = Config2D(
@@ -141,12 +199,6 @@ def main(args):
     # size of dataset to train on
     dataset_size = args.dataset_size
 
-    # this is only relevant when you want different versions
-    # version = 1
-
-    # this should only be used if you want different versions
-    # rng = np.random.default_rng(version)
-
     # amount of total data: change this to suit your needs
     total_data = args.total_data
 
@@ -176,8 +228,8 @@ def main(args):
     X_val, Y_val = [X[i] for i in val_indices], [Y[i] for i in val_indices]
 
     # prints amount of images in training, validation, and testing to verify
-    print(f"training set size: {len(X_train)}")
-    print(f"validation set size: {len(X_val)}")
+    print(f"Training set size: {len(X_train)}")
+    print(f"Validation set size: {len(X_val)}")
 
     # where the model will be saved
     base_dir = "models"
@@ -223,7 +275,7 @@ def main(args):
     testing_filename = os.path.join(dataset_dir, 'testing_images.png')  # define the path and name for your image
     save_images_to_file(X_test, testing_filename, "Testing Images")
 
-    # function to evaluate and save csv files
+    # function to evaluate and save csv files with stats
     def evaluate_and_save(model, X_data, Y_data, data_type='validation'):
 
         # prediction
@@ -277,10 +329,6 @@ def main(args):
         # naming the model
         model_name = args.model_name + "_" + str(args.dataset_size) + '_epochs_' + str(i)
 
-        # naming the model - this is used if there will multiple versions of the same training
-        # this is more advanced
-        # model_name = 'customStardist_' + str(dataset_size) + '_v' + str(version) + '_epochs_' + str(i)
-
         # instantiate the model with custom parameters
         model = StarDist2D(conf, name=model_name, basedir=dataset_dir)
 
@@ -289,16 +337,14 @@ def main(args):
 
         # refers to how much the network can "see" the image in a single pass
         fov = np.array(model._axes_tile_overlap('YX'))
-
-        # printing median size and fov
-        print(f"median object size:      {median_size}")
-        print(f"network field of view :  {fov}")
-
-        # this is to warn the user that the median object size is larger than the fov
-        # which can cause the network to struggle to detect the objects properly
-        # this can lead to partial segmentations or missed detections
+        print(f"Median object size:      {median_size}")
+        print(f"Network field of view :  {fov}")
         if any(median_size > fov):
             print("WARNING: median object size larger than field of view of the neural network.")
+            print("Adjust the variable \"grid\" to be higher than (2,2).")
+        # IMPORTANT: MAKE SURE THE NETWORK FOV IS BIGGER THAN OBJECT SIZE OTHERWISE IT
+        # CAN CAUSE THE NETWORK TO STRUGGLE TO DETECT THE OBJECTS PROPERLY
+        # THIS CAN LEAD TO PARTIAL SEGMENTATIONS OR MISSED DETECTIONS
 
         # epochs based on where i is in the list of epochs
         epochs = i
