@@ -14,7 +14,7 @@ The core of the project involved applying the Stardist model, based on the U-net
 
 ## Results
 
-The training process yielded promising results, with significant reductions in both probability loss and distance loss.
+The training process of 2-4mm oyster dataset yielded promising results, with significant reductions in both probability loss and distance loss.
 
 - **Accuracy**: The model achieved a peak accuracy of 91% on images with darker backgrounds. However, accuracy tended to decrease with lighter background images, indicating an area for further refinement.
   
